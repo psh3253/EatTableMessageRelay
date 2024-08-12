@@ -1,8 +1,7 @@
-package com.astar.eattable.messagerelay.restaurant.model;
+package com.astar.eattable.messagerelay.common.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.astar.eattable.messagerelay.user.model.User;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,13 +14,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Entity
-public class RestaurantEvent {
+public class ExternalEvent {
     @Id
     @UuidGenerator
     private UUID eventId;
-
-    @NotNull
-    private Long restaurantId;
 
     @NotNull
     private String eventType;
@@ -35,26 +31,28 @@ public class RestaurantEvent {
     @NotNull
     private LocalDateTime createdAt;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User createdBy;
+
     private LocalDateTime publishedAt;
 
-    public void publish() {
-        this.published = true;
-        this.publishedAt = LocalDateTime.now();
-    }
-
     @Builder
-    public RestaurantEvent(Long restaurantId, String eventType, String payload) {
-        this.restaurantId = restaurantId;
+    public ExternalEvent(String eventType, String payload) {
         this.eventType = eventType;
         this.payload = payload;
         this.createdAt = LocalDateTime.now();
     }
 
-    public static RestaurantEvent from(Long restaurantId, String eventType, String payload) {
-        return RestaurantEvent.builder()
-                .restaurantId(restaurantId)
+    public static ExternalEvent from(String eventType, String payload) {
+        return ExternalEvent.builder()
                 .eventType(eventType)
                 .payload(payload)
                 .build();
+    }
+
+    public void publish() {
+        this.published = true;
+        this.publishedAt = LocalDateTime.now();
     }
 }

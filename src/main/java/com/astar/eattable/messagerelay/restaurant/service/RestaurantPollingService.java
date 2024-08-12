@@ -1,7 +1,6 @@
 package com.astar.eattable.messagerelay.restaurant.service;
 
-import com.astar.eattable.messagerelay.restaurant.event.ExternalRestaurantEvent;
-import com.astar.eattable.messagerelay.restaurant.repository.RestaurantEventRepository;
+import com.astar.eattable.messagerelay.common.repository.ExternalEventRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -16,20 +15,20 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @Service
 public class RestaurantPollingService {
-    private final RestaurantEventRepository restaurantEventRepository;
+    private final ExternalEventRepository externalEventRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
     @Transactional
     @Scheduled(fixedRate = 1000)
     public void pollRestaurantEvents() {
-        restaurantEventRepository.findAllByPublishedFalse().forEach(restaurantEvent -> {
-            ExternalRestaurantEvent externalRestaurantEvent = ExternalRestaurantEvent.from(restaurantEvent);
+        externalEventRepository.findAllByPublishedFalse().forEach(restaurantEvent -> {
+//            ExternalRestaurantEvent externalRestaurantEvent = ExternalRestaurantEvent.from(restaurantEvent);
             try {
-                CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("restaurant-events", objectMapper.writeValueAsString(externalRestaurantEvent));
+                CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("restaurant-events", objectMapper.writeValueAsString(restaurantEvent));
                 future.thenRun(() -> {
                     restaurantEvent.publish();
-                    restaurantEventRepository.save(restaurantEvent);
+                    externalEventRepository.save(restaurantEvent);
                 });
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
