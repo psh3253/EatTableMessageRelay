@@ -33,7 +33,7 @@ public class ExternalEvent {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User createdBy;
+    private User user;
 
     private LocalDateTime publishedAt;
 
@@ -42,13 +42,6 @@ public class ExternalEvent {
         this.eventType = eventType;
         this.payload = payload;
         this.createdAt = LocalDateTime.now();
-    }
-
-    public static ExternalEvent from(String eventType, String payload) {
-        return ExternalEvent.builder()
-                .eventType(eventType)
-                .payload(payload)
-                .build();
     }
 
     public void publish() {
