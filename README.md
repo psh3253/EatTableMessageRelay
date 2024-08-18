@@ -1,4 +1,4 @@
-# EatTable
+# EatTable's Message Relay Server
 
 Spring Boot로 구현한 음식점 예약 서버입니다.
 
