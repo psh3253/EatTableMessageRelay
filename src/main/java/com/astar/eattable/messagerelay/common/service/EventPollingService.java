@@ -1,5 +1,6 @@
-package com.astar.eattable.messagerelay.restaurant.service;
+package com.astar.eattable.messagerelay.common.service;
 
+import com.astar.eattable.messagerelay.common.dto.EventTypes;
 import com.astar.eattable.messagerelay.common.repository.ExternalEventRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,21 +15,21 @@ import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @Service
-public class RestaurantPollingService {
+public class EventPollingService {
     private final ExternalEventRepository externalEventRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
     @Transactional
     @Scheduled(fixedRate = 1000)
-    public void pollRestaurantEvents() {
-        externalEventRepository.findAllByPublishedFalse().forEach(restaurantEvent -> {
-//            ExternalRestaurantEvent externalRestaurantEvent = ExternalRestaurantEvent.from(restaurantEvent);
+    public void pollEvents() {
+        externalEventRepository.findAllByPublishedFalse().forEach(externalEvent -> {
+            String topic = EventTypes.getTopic(externalEvent.getEventType());
             try {
-                CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send("restaurant-events", objectMapper.writeValueAsString(restaurantEvent));
+                CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, objectMapper.writeValueAsString(externalEvent));
                 future.thenRun(() -> {
-                    restaurantEvent.publish();
-                    externalEventRepository.save(restaurantEvent);
+                    externalEvent.publish();
+                    externalEventRepository.save(externalEvent);
                 });
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
