@@ -29,6 +29,9 @@ public class ExternalEvent {
     private boolean published = false;
 
     @NotNull
+    private boolean consumed = false;
+
+    @NotNull
     private LocalDateTime createdAt;
 
     @ManyToOne
@@ -36,6 +39,8 @@ public class ExternalEvent {
     private User user;
 
     private LocalDateTime publishedAt;
+
+    private LocalDateTime consumedAt;
 
     @Builder
     public ExternalEvent(String eventType, String payload) {
