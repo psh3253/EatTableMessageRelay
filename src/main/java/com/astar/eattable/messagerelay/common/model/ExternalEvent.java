@@ -29,7 +29,7 @@ public class ExternalEvent {
     private boolean published = false;
 
     @NotNull
-    private boolean consumed = false;
+    private final boolean consumed = false;
 
     @NotNull
     private LocalDateTime createdAt;

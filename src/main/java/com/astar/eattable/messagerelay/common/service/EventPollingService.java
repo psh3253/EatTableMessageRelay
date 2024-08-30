@@ -17,17 +17,17 @@ public class EventPollingService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-        @Transactional
-        @Scheduled(fixedRate = 1000)
-        public void pollEvents() {
-            externalEventRepository.findAllByPublishedFalse().forEach(externalEvent -> {
-                String topic = EventTypes.getTopic(externalEvent.getEventType());
-                try {
-                    kafkaTemplate.send(topic, objectMapper.writeValueAsString(externalEvent));
-                    externalEvent.publish();
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
+    @Transactional
+    @Scheduled(fixedRate = 1000)
+    public void pollEvents() {
+        externalEventRepository.findAllByPublishedFalse().forEach(externalEvent -> {
+            String topic = EventTypes.getTopic(externalEvent.getEventType());
+            try {
+                kafkaTemplate.send(topic, objectMapper.writeValueAsString(externalEvent));
+                externalEvent.publish();
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 }
