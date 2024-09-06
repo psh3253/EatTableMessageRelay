@@ -23,7 +23,7 @@ public class EventPollingService {
         externalEventRepository.findAllByPublishedFalseOrderByCreatedAtAsc().forEach(externalEvent -> {
             String topic = EventTypes.getTopic(externalEvent.getEventType());
             try {
-                kafkaTemplate.send(topic, objectMapper.writeValueAsString(externalEvent));
+                kafkaTemplate.send(topic, String.valueOf(externalEvent.getKeyValue()), objectMapper.writeValueAsString(externalEvent));
                 externalEvent.publish();
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
