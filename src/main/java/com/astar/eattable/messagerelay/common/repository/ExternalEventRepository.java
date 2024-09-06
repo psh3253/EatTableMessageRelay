@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ExternalEventRepository extends JpaRepository<ExternalEvent, UUID> {
-    List<ExternalEvent> findAllByPublishedFalse();
+    List<ExternalEvent> findAllByPublishedFalseOrderByCreatedAtAsc();
 }

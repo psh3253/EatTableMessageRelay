@@ -20,7 +20,7 @@ public class EventPollingService {
     @Transactional
     @Scheduled(fixedRate = 1000)
     public void pollEvents() {
-        externalEventRepository.findAllByPublishedFalse().forEach(externalEvent -> {
+        externalEventRepository.findAllByPublishedFalseOrderByCreatedAtAsc().forEach(externalEvent -> {
             String topic = EventTypes.getTopic(externalEvent.getEventType());
             try {
                 kafkaTemplate.send(topic, objectMapper.writeValueAsString(externalEvent));
