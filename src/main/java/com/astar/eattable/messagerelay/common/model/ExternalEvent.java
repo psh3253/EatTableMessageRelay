@@ -14,6 +14,7 @@ import java.util.UUID;
 
 @NoArgsConstructor
 @Getter
+@Table(name = "external_event")
 @Entity
 public class ExternalEvent {
     @Id

@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @SQLDelete(sql = "UPDATE user SET deleted = true, deleted_at = now() WHERE id = ?")
 @SQLRestriction("deleted = false")
+@Table(name = "users")
 @Entity
 public class User extends BaseTimeEntity {
     @Id
